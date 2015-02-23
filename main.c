@@ -48,6 +48,7 @@ int main(void)
 
 void Configure_Data()
 {
+// http://t-filter.appspot.com/fir/index.html //
   /*sampling frequency: 16000 Hz, fixed point precision: 16 bits
 * 0 Hz - 450 Hz, gain = 0, desired attenuation = -40 dB
 * 500 Hz - 2500 Hz, gain = 1, desired ripple = 5 dB
