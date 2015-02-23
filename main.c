@@ -68,34 +68,34 @@ void Configure_Data()
 void ADC_ready(uint16_t idxDMAcurrentPos)
 {
   //uint16_t c1, c2;
-  uint16_t idxDataTx, idxSample, idxTap;
+  uint16_t idxStart, idxSample, idxTap;
   int32_t tSample = 0;
   short tap[32] = {-5197,-881,412,2283,4000,4783,4082,1907,-1131,-3979,-5542,-5122,-2738,838,4338,6485,6485,4338,838,-2738,-5122,-5542,-3979,-1131,1907,4082,4783,4000,2283,412,-881,-5197};
   
   if (idxDMAcurrentPos == 1024)
-    idxDataTx = 1024;
+    idxStart = 2047;
   else if (idxDMAcurrentPos == 2048)
-    idxDataTx = 0;
+    idxStart = 1023;
   
   //c1 = DMA_GetCurrDataCounter(DMA1_Channel1);
   for(idxSample = 0; idxSample < 32 - 1; idxSample++)
   {
-    tSample = tap[0] * ADCValues[idxSample];
+    tSample = tap[0] * ADCValues[idxStart - idxSample];
     for(idxTap = 0; idxTap < idxSample; idxTap++)
-      tSample += tap[idxTap + 1] * ADCValues[idxDataTx + idxSample - idxTap - 1];
+      tSample += tap[idxTap + 1] * ADCValues[idxStart - idxSample + idxTap + 1];
     for(idxTap = 1; idxTap < 32 - idxSample; idxTap++)
       tSample += tap[idxSample + idxTap] * lastADCValues[idxTap - 1];
     TXData[idxSample] = (short)(tSample>>16);
   }
-  for(idxSample = 32 - 1; idxSample < 1024-1; idxSample++)
+  for(idxSample = 32 - 1; idxSample < 1024; idxSample++)
   {
-    tSample = tap[0] * ADCValues[idxSample];
+    tSample = tap[0] * ADCValues[idxStart - idxSample];
     for(idxTap = 1; idxTap < 32; idxTap++)
-      tSample += tap[idxTap] * ADCValues[idxDataTx + idxSample - idxTap];
+      tSample += tap[idxTap] * ADCValues[idxStart - idxSample + idxTap];
     TXData[idxSample] = (short)(tSample>>16);
   }
   for(idxSample = 0; idxSample < 31; idxSample++)
-    lastADCValues[31 - idxSample - 1] = ADCValues[idxDataTx + idxSample + 1024 - 32 + 1];
+    lastADCValues[idxSample] = ADCValues[idxStart + 1 - 1024 + idxSample];
   //c2 = DMA_GetCurrDataCounter(DMA1_Channel1);
   
   //Configure_DMA1_4((uint32_t)&ADCValues[idxDataTx]);
